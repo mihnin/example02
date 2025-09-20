@@ -206,5 +206,11 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+# Exclude docs folder from deployment (contains local development files)
 docs/
+
+# Exclude Claude Code folder
 .claude/
+
+# Keep demo data file in root for deployment
+!sample_sales_data.xlsx

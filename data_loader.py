@@ -45,10 +45,19 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
             df = pd.read_excel(file_path)
         else:
             # Пытаемся загрузить дефолтный файл
-            default_path = "docs/sample_sales_data.xlsx"
-            if os.path.exists(default_path):
-                df = pd.read_excel(default_path)
-            else:
+            # Сначала ищем в корне проекта (для GitHub deployment)
+            default_paths = [
+                "sample_sales_data.xlsx",  # корень проекта
+                "docs/sample_sales_data.xlsx"  # локальная папка docs
+            ]
+
+            df = None
+            for default_path in default_paths:
+                if os.path.exists(default_path):
+                    df = pd.read_excel(default_path)
+                    break
+
+            if df is None:
                 raise FileNotFoundError("Файл данных не найден. Пожалуйста, загрузите файл.")
 
         # Определяем столбец с датами и переименовываем его

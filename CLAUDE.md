@@ -153,9 +153,12 @@ The application follows a clean modular architecture with separation of concerns
 ├── test_analysis.py          # pytest test suite for analysis module
 ├── test_compatibility.py     # API compatibility tests
 ├── test_refactored.py        # Functional tests for refactored code
-├── docs/                     # Data files and Jupyter notebooks
-│   ├── sample_sales_data.xlsx
-│   └── пример2.ipynb
+├── sample_sales_data.xlsx    # Demo data file (for deployment)
+├── requirements.txt          # Production dependencies
+├── check_dependencies.py     # Dependency validation script
+├── docs/                     # Local development files
+│   ├── sample_sales_data.xlsx # Demo data (local copy)
+│   └── пример2.ipynb         # Jupyter analysis notebook
 └── venv/                     # Python virtual environment
 ```
 
@@ -223,3 +226,19 @@ pip list --outdated
 # 2. Install: pip install -r requirements.txt
 # 3. Test: python check_dependencies.py && python -m pytest
 ```
+
+## Deployment
+
+### GitHub/Cloud Deployment
+For deployment on platforms like Streamlit Cloud or Heroku:
+
+1. **Include demo data:** `sample_sales_data.xlsx` is placed in project root
+2. **Dependencies:** `requirements.txt` with pinned versions is included
+3. **Data fallback:** Application tries multiple paths for demo data:
+   - `sample_sales_data.xlsx` (deployment)
+   - `docs/sample_sales_data.xlsx` (local development)
+
+### Local Development
+- Demo data can be in either location
+- Use `docs/` folder for additional development files
+- Virtual environment (`venv/`) for isolated dependencies
