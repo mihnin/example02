@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a comprehensive Python data analysis project featuring a full-stack Streamlit web application for sales data analysis. The project demonstrates modular architecture, comprehensive testing, and code quality practices.
 
+**🌐 Live Demo:** https://example02.streamlit.app/
+
 **Main Application:** Interactive Streamlit web app (`app.py`) with file upload, data validation, statistical analysis, and advanced visualizations.
 
 **Core Components:**
