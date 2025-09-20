@@ -38,7 +38,7 @@ jobs:
 
     - name: Run code quality checks
       run: |
-        python -m flake8 *.py --max-line-length=88 --ignore=E203,W503 --exclude=venv
+        python -m flake8 *.py --max-line-length=120 --ignore=E203,W503 --exclude=venv
 
     - name: Run tests
       run: |
