@@ -24,8 +24,11 @@ This is a comprehensive Python data analysis project featuring a full-stack Stre
 # Windows: venv\Scripts\activate
 # macOS/Linux: source venv/bin/activate
 
-# Install all dependencies
-pip install streamlit plotly pandas openpyxl statsmodels pytest flake8 black pytest-cov
+# Install production dependencies (pinned versions)
+pip install -r requirements.txt
+
+# Check dependencies
+python check_dependencies.py
 ```
 
 ### Running the Application
@@ -164,3 +167,59 @@ The application follows a clean modular architecture with separation of concerns
 - **Modular design** with single responsibility principle
 - **Error handling** with user-friendly Streamlit messaging
 - **Test coverage** with pytest fixtures and edge case testing
+
+## Troubleshooting
+
+### Common Issues
+
+**ModuleNotFoundError: plotly/statsmodels not found**
+```bash
+# Check what's missing
+python check_dependencies.py
+
+# Install missing packages
+pip install -r requirements.txt
+```
+
+**Streamlit app not starting**
+```bash
+# Check if Streamlit is properly installed
+streamlit --version
+
+# Try alternative startup method
+python -m streamlit run app.py
+```
+
+**Import errors in data_loader.py**
+```bash
+# Verify all typing imports are correct
+python -c "from data_loader import load_sales_data; print('OK')"
+```
+
+### Dependencies Management
+
+**Production deployment** uses `requirements.txt` with pinned versions for stability:
+```
+streamlit==1.49.1
+plotly==6.3.0
+pandas==2.3.2
+openpyxl==3.1.5
+statsmodels==0.14.5
+numpy==2.3.3
+python-dateutil==2.9.0.post0
+```
+
+**Version management:**
+- Exact versions (==) to prevent breaking changes
+- Regular updates: Test with new versions before updating
+
+**Dependency updates:**
+```bash
+# Check for outdated packages
+pip list --outdated
+
+# Manual update process:
+# 1. Update versions in requirements.txt
+# 2. Install: pip install -r requirements.txt
+# 3. Test: python check_dependencies.py && python -m pytest
+```
