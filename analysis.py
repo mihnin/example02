@@ -31,13 +31,13 @@ def calculate_basic_statistics(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
 
         for column in numeric_columns:
             statistics[column] = {
-                'mean': float(df[column].mean()),
-                'median': float(df[column].median()),
-                'std': float(df[column].std()),
-                'min': float(df[column].min()),
-                'max': float(df[column].max()),
-                'sum': float(df[column].sum()),
-                'count': int(df[column].count())
+                "mean": float(df[column].mean()),
+                "median": float(df[column].median()),
+                "std": float(df[column].std()),
+                "min": float(df[column].min()),
+                "max": float(df[column].max()),
+                "sum": float(df[column].sum()),
+                "count": int(df[column].count()),
             }
 
         return statistics
@@ -60,21 +60,21 @@ def calculate_kpi_metrics(df: pd.DataFrame) -> Dict[str, Union[int, float]]:
     try:
         if df.empty:
             return {
-                'total_sessions': 0,
-                'avg_daily_sessions': 0.0,
-                'max_daily_sessions': 0
+                "total_sessions": 0,
+                "avg_daily_sessions": 0.0,
+                "max_daily_sessions": 0,
             }
 
         # Рассчитываем общее количество продаж (сумма по всем продуктам)
         total_sales = df.sum(axis=1)
 
         kpi_metrics = {
-            'total_sessions': int(total_sales.sum()),
-            'avg_daily_sessions': float(total_sales.mean()),
-            'max_daily_sessions': int(total_sales.max()),
-            'min_daily_sessions': int(total_sales.min()),
-            'days_count': len(df),
-            'growth_rate': _calculate_growth_rate(total_sales)
+            "total_sessions": int(total_sales.sum()),
+            "avg_daily_sessions": float(total_sales.mean()),
+            "max_daily_sessions": int(total_sales.max()),
+            "min_daily_sessions": int(total_sales.min()),
+            "days_count": len(df),
+            "growth_rate": _calculate_growth_rate(total_sales),
         }
 
         return kpi_metrics
@@ -112,9 +112,7 @@ def _calculate_growth_rate(series: pd.Series) -> float:
 
 
 def calculate_moving_average(
-    df: pd.DataFrame,
-    window: int = 7,
-    column: Optional[str] = None
+    df: pd.DataFrame, window: int = 7, column: Optional[str] = None
 ) -> pd.DataFrame:
     """
     Рассчитывает скользящее среднее для указанного столбца или всех столбцов.
@@ -133,7 +131,7 @@ def calculate_moving_average(
 
         if column and column in df.columns:
             result = df.copy()
-            result[f'{column}_MA{window}'] = df[column].rolling(window=window).mean()
+            result[f"{column}_MA{window}"] = df[column].rolling(window=window).mean()
             return result
         else:
             # Применяем ко всем числовым столбцам
@@ -141,7 +139,7 @@ def calculate_moving_average(
             numeric_columns = df.select_dtypes(include=[np.number]).columns
 
             for col in numeric_columns:
-                result[f'{col}_MA{window}'] = df[col].rolling(window=window).mean()
+                result[f"{col}_MA{window}"] = df[col].rolling(window=window).mean()
 
             return result
 
@@ -151,9 +149,7 @@ def calculate_moving_average(
 
 
 def detect_anomalies(
-    df: pd.DataFrame,
-    threshold: float = 2.0,
-    method: str = 'zscore'
+    df: pd.DataFrame, threshold: float = 2.0, method: str = "zscore"
 ) -> Dict[str, List[Tuple[datetime, float]]]:
     """
     Обнаруживает аномалии в данных.
@@ -176,11 +172,11 @@ def detect_anomalies(
         for column in numeric_columns:
             column_anomalies = []
 
-            if method == 'zscore':
+            if method == "zscore":
                 z_scores = np.abs((df[column] - df[column].mean()) / df[column].std())
                 anomaly_mask = z_scores > threshold
 
-            elif method == 'iqr':
+            elif method == "iqr":
                 Q1 = df[column].quantile(0.25)
                 Q3 = df[column].quantile(0.75)
                 IQR = Q3 - Q1
@@ -207,9 +203,7 @@ def detect_anomalies(
 
 
 def calculate_seasonal_decomposition(
-    df: pd.DataFrame,
-    column: str,
-    period: int = 12
+    df: pd.DataFrame, column: str, period: int = 12
 ) -> Optional[Dict[str, pd.Series]]:
     """
     Выполняет сезонную декомпозицию временного ряда.
@@ -232,20 +226,18 @@ def calculate_seasonal_decomposition(
         series = df[column].dropna()
 
         if len(series) < 2 * period:
-            st.warning(f"Недостаточно данных для сезонной декомпозиции столбца {column}")
+            st.warning(
+                f"Недостаточно данных для сезонной декомпозиции столбца {column}"
+            )
             return None
 
-        decomposition = seasonal_decompose(
-            series,
-            model='additive',
-            period=period
-        )
+        decomposition = seasonal_decompose(series, model="additive", period=period)
 
         return {
-            'trend': decomposition.trend,
-            'seasonal': decomposition.seasonal,
-            'residual': decomposition.resid,
-            'observed': decomposition.observed
+            "trend": decomposition.trend,
+            "seasonal": decomposition.seasonal,
+            "residual": decomposition.resid,
+            "observed": decomposition.observed,
         }
 
     except Exception as e:
@@ -299,28 +291,51 @@ def generate_insights(df: pd.DataFrame, statistics: Dict) -> List[str]:
         if len(total_sales) >= 2:
             growth_rate = _calculate_growth_rate(total_sales)
             if growth_rate > 10:
-                insights.append(f"Положительная динамика: рост продаж составил {growth_rate:.1f}%")
+                insights.append(
+                    f"Положительная динамика: рост продаж составил {growth_rate:.1f}%"
+                )
             elif growth_rate < -10:
-                insights.append(f"Отрицательная динамика: снижение продаж на {abs(growth_rate):.1f}%")
+                insights.append(
+                    f"Отрицательная динамика: снижение продаж на {abs(growth_rate):.1f}%"
+                )
 
         # Анализ лучшего продукта
         if statistics:
-            product_totals = {product: stats['sum'] for product, stats in statistics.items()}
+            product_totals = {
+                product: stats["sum"] for product, stats in statistics.items()
+            }
             best_product = max(product_totals, key=product_totals.get)
-            insights.append(f"Лидер продаж: {best_product} с общим объемом {product_totals[best_product]:,.0f}")
+            insights.append(
+                f"Лидер продаж: {best_product} с общим объемом {product_totals[best_product]:,.0f}"
+            )
 
         # Анализ волатильности
         for product, stats in statistics.items():
-            cv = stats['std'] / stats['mean'] if stats['mean'] > 0 else 0
+            cv = stats["std"] / stats["mean"] if stats["mean"] > 0 else 0
             if cv > 0.5:
-                insights.append(f"{product}: высокая волатильность продаж (CV = {cv:.2f})")
+                insights.append(
+                    f"{product}: высокая волатильность продаж (CV = {cv:.2f})"
+                )
 
         # Анализ сезонности
         if len(df) >= 12:
             monthly_avg = df.groupby(df.index.month).mean().sum(axis=1)
             peak_month = monthly_avg.idxmax()
-            month_names = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+            month_names = [
+                "",
+                "Январь",
+                "Февраль",
+                "Март",
+                "Апрель",
+                "Май",
+                "Июнь",
+                "Июль",
+                "Август",
+                "Сентябрь",
+                "Октябрь",
+                "Ноябрь",
+                "Декабрь",
+            ]
             insights.append(f"Пиковый месяц продаж: {month_names[peak_month]}")
 
         return insights
