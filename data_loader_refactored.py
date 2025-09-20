@@ -8,7 +8,7 @@
 import pandas as pd
 import streamlit as st
 from datetime import datetime, date
-from typing import Optional, Union, Dict, List, Tuple
+from typing import Optional, Union, Tuple
 import os
 from pathlib import Path
 
@@ -342,8 +342,8 @@ def filter_data_by_date_range(
 
         # Фильтруем данные
         date_mask = (
-            (dataframe.index >= normalized_start) &
-            (dataframe.index <= normalized_end)
+            (dataframe.index >= normalized_start)
+            & (dataframe.index <= normalized_end)
         )
         filtered_dataframe = dataframe[date_mask]
 
