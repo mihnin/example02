@@ -5,6 +5,7 @@
 
 import sys
 
+
 def check_import(module_name, package_name=None):
     """Проверяет возможность импорта модуля."""
     try:
@@ -15,6 +16,7 @@ def check_import(module_name, package_name=None):
         print(f"[ERROR] {package_name or module_name} - НЕ УСТАНОВЛЕН")
         print(f"   Ошибка: {e}")
         return False
+
 
 def main():
     """Основная функция проверки."""
@@ -28,7 +30,7 @@ def main():
         ("openpyxl", "OpenPyXL"),
         ("statsmodels", "Statsmodels"),
         ("numpy", "NumPy"),
-        ("dateutil", "python-dateutil")
+        ("dateutil", "python-dateutil"),
     ]
 
     all_ok = True
@@ -45,6 +47,7 @@ def main():
         print("Установите их командой: pip install -r requirements.txt")
 
     return 0 if all_ok else 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

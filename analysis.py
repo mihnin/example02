@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 from typing import Dict, List, Tuple, Optional, Union
-from datetime import datetime, date
+from datetime import datetime
 
 
 def calculate_basic_statistics(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
@@ -190,8 +190,8 @@ def detect_anomalies(
             anomaly_dates = df[anomaly_mask].index
             anomaly_values = df.loc[anomaly_mask, column]
 
-            for date, value in zip(anomaly_dates, anomaly_values):
-                column_anomalies.append((date, float(value)))
+            for anomaly_date, value in zip(anomaly_dates, anomaly_values):
+                column_anomalies.append((anomaly_date, float(value)))
 
             anomalies[column] = column_anomalies
 

@@ -5,20 +5,18 @@
 """
 
 import sys
-sys.path.append('.')
-
+import pandas as pd
+from datetime import date
 from data_loader_refactored import (
     load_sales_data,
     filter_data_by_date_range,
     get_date_range_from_dataframe,
     _determine_file_type,
     _find_date_column,
-    _is_valid_date_column
+    _is_valid_date_column,
 )
-import pandas as pd
-from datetime import date
-import tempfile
-import os
+
+sys.path.append(".")
 
 
 def test_basic_functionality():
@@ -63,7 +61,9 @@ def test_basic_functionality():
             filtered_df = filter_data_by_date_range(df, start_date, end_date)
             print(f"[OK] Отфильтровано {len(filtered_df)} строк из {len(df)}")
             if not filtered_df.empty:
-                print(f"     Период фильтра: {filtered_df.index.min().date()} - {filtered_df.index.max().date()}")
+                print(
+                    f"     Период фильтра: {filtered_df.index.min().date()} - {filtered_df.index.max().date()}"
+                )
         else:
             print("[SKIP] DataFrame пустой для фильтрации")
     except Exception as e:
@@ -88,8 +88,8 @@ def test_helper_functions():
         excel_file = MockFile("test.xlsx")
         csv_file = MockFile("test.csv")
 
-        assert _determine_file_type(excel_file) == 'excel'
-        assert _determine_file_type(csv_file) == 'csv'
+        assert _determine_file_type(excel_file) == "excel"
+        assert _determine_file_type(csv_file) == "csv"
         print("[OK] Определение типа файла работает корректно")
 
     except Exception as e:
@@ -99,14 +99,16 @@ def test_helper_functions():
     # Тест поиска столбца с датами
     try:
         # Создаем тестовый DataFrame
-        test_df = pd.DataFrame({
-            'Дата': ['2020-01-01', '2020-01-02', '2020-01-03'],
-            'Продукт_1': [100, 120, 110],
-            'Продукт_2': [80, 90, 85]
-        })
+        test_df = pd.DataFrame(
+            {
+                "Дата": ["2020-01-01", "2020-01-02", "2020-01-03"],
+                "Продукт_1": [100, 120, 110],
+                "Продукт_2": [80, 90, 85],
+            }
+        )
 
         date_column = _find_date_column(test_df)
-        assert date_column == 'Дата'
+        assert date_column == "Дата"
         print("[OK] Поиск столбца с датами работает корректно")
 
     except Exception as e:
@@ -115,13 +117,15 @@ def test_helper_functions():
 
     # Тест валидации столбца с датами
     try:
-        test_df = pd.DataFrame({
-            'valid_dates': ['2020-01-01', '2020-01-02', '2020-01-03'],
-            'invalid_dates': ['not_a_date', 'also_not_date', 'nope']
-        })
+        test_df = pd.DataFrame(
+            {
+                "valid_dates": ["2020-01-01", "2020-01-02", "2020-01-03"],
+                "invalid_dates": ["not_a_date", "also_not_date", "nope"],
+            }
+        )
 
-        assert _is_valid_date_column(test_df, 'valid_dates') == True
-        assert _is_valid_date_column(test_df, 'invalid_dates') == False
+        assert _is_valid_date_column(test_df, "valid_dates") is True
+        assert _is_valid_date_column(test_df, "invalid_dates") is False
         print("[OK] Валидация столбца с датами работает корректно")
 
     except Exception as e:
@@ -152,7 +156,7 @@ def test_error_handling():
             # Неверный диапазон: конечная дата раньше начальной
             start_date = date(2020, 12, 31)
             end_date = date(2020, 6, 1)
-            filtered_df = filter_data_by_date_range(df, start_date, end_date)
+            _ = filter_data_by_date_range(df, start_date, end_date)
             print("[OK] Обработка неверного диапазона дат работает корректно")
     except Exception as e:
         print(f"[ERROR] Ошибка обработки неверного диапазона: {e}")

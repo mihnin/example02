@@ -5,7 +5,6 @@
 
 import pytest
 import pandas as pd
-from datetime import date
 from unittest.mock import patch
 
 # Импорты оригинального и рефакторенного модулей
@@ -31,7 +30,7 @@ class TestCompatibility:
         for param_name in original_sig.parameters:
             assert param_name in refactored_sig.parameters
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_load_sales_data_return_type_compatibility(self, mock_st_error):
         """Тест совместимости возвращаемого типа."""
 
@@ -42,7 +41,7 @@ class TestCompatibility:
         assert isinstance(original_result, pd.DataFrame)
         assert isinstance(refactored_result, pd.DataFrame)
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_load_sales_data_structure_compatibility(self, mock_st_error):
         """Тест совместимости структуры возвращаемых данных."""
 
@@ -58,12 +57,12 @@ class TestCompatibility:
             assert len(original_result.columns) == len(refactored_result.columns)
 
             # Типы индексов должны совпадать
-            assert type(original_result.index) == type(refactored_result.index)
+            assert isinstance(original_result.index, type(refactored_result.index))
 
             # Столбцы должны быть одинаковыми (порядок может отличаться)
             assert set(original_result.columns) == set(refactored_result.columns)
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_data_content_compatibility(self, mock_st_error):
         """Тест совместимости содержимого данных."""
 
@@ -80,7 +79,7 @@ class TestCompatibility:
             pd.testing.assert_frame_equal(
                 original_sorted,
                 refactored_sorted,
-                check_dtype=False  # Позволяем небольшие различия в типах
+                check_dtype=False,  # Позволяем небольшие различия в типах
             )
 
     def test_error_handling_compatibility(self):
@@ -88,7 +87,7 @@ class TestCompatibility:
 
         # Обе функции должны возвращать пустой DataFrame при ошибках
         # а не выбрасывать исключения
-        with patch('os.path.exists', return_value=False):
+        with patch("os.path.exists", return_value=False):
             original_result = original_load_sales_data("nonexistent_file.xlsx")
             refactored_result = refactored_load_sales_data("nonexistent_file.xlsx")
 
@@ -101,7 +100,7 @@ class TestCompatibility:
 class TestPerformance:
     """Тесты производительности рефакторенного кода."""
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_performance_comparison(self, mock_st_error):
         """Сравнение производительности оригинального и рефакторенного кода."""
 
@@ -128,7 +127,9 @@ class TestPerformance:
 
         print(f"Оригинальный код: {original_time:.3f}s")
         print(f"Рефакторенный код: {refactored_time:.3f}s")
-        print(f"Изменение: {((refactored_time - original_time) / original_time * 100):+.1f}%")
+        print(
+            f"Изменение: {((refactored_time - original_time) / original_time * 100):+.1f}%"
+        )
 
 
 class TestCodeQuality:
@@ -139,48 +140,65 @@ class TestCodeQuality:
 
         import inspect
         from data_loader_refactored import (
-            load_sales_data, _determine_file_type, _load_dataframe_from_source,
-            _read_uploaded_file, _read_local_file, _read_default_file,
-            _find_date_column, _is_valid_date_column, _normalize_date_column
+            load_sales_data,
+            _determine_file_type,
+            _load_dataframe_from_source,
+            _read_uploaded_file,
+            _read_local_file,
+            _read_default_file,
+            _find_date_column,
+            _is_valid_date_column,
+            _normalize_date_column,
         )
 
         functions_to_test = [
-            load_sales_data, _determine_file_type, _load_dataframe_from_source,
-            _read_uploaded_file, _read_local_file, _read_default_file,
-            _find_date_column, _is_valid_date_column, _normalize_date_column
+            load_sales_data,
+            _determine_file_type,
+            _load_dataframe_from_source,
+            _read_uploaded_file,
+            _read_local_file,
+            _read_default_file,
+            _find_date_column,
+            _is_valid_date_column,
+            _normalize_date_column,
         ]
 
         for func in functions_to_test:
-            source_lines = inspect.getsource(func).split('\n')
+            source_lines = inspect.getsource(func).split("\n")
             # Убираем пустые строки и комментарии
             code_lines = [
-                line for line in source_lines
-                if line.strip() and not line.strip().startswith('#')
+                line
+                for line in source_lines
+                if line.strip() and not line.strip().startswith("#")
             ]
 
             # Каждая функция должна быть не более 50 строк кода
-            assert len(code_lines) <= 50, (
-                f"Функция {func.__name__} слишком длинная: {len(code_lines)} строк"
-            )
+            assert (
+                len(code_lines) <= 50
+            ), f"Функция {func.__name__} слишком длинная: {len(code_lines)} строк"
 
     def test_docstring_presence(self):
         """Проверяет наличие docstring у всех публичных функций."""
 
         from data_loader_refactored import (
-            load_sales_data, filter_data_by_date_range, get_date_range_from_dataframe
+            load_sales_data,
+            filter_data_by_date_range,
+            get_date_range_from_dataframe,
         )
 
         public_functions = [
-            load_sales_data, filter_data_by_date_range, get_date_range_from_dataframe
+            load_sales_data,
+            filter_data_by_date_range,
+            get_date_range_from_dataframe,
         ]
 
         for func in public_functions:
-            assert func.__doc__ is not None, (
-                f"Функция {func.__name__} не имеет docstring"
-            )
-            assert len(func.__doc__.strip()) > 50, (
-                f"Docstring функции {func.__name__} слишком короткий"
-            )
+            assert (
+                func.__doc__ is not None
+            ), f"Функция {func.__name__} не имеет docstring"
+            assert (
+                len(func.__doc__.strip()) > 50
+            ), f"Docstring функции {func.__name__} слишком короткий"
 
 
 if __name__ == "__main__":

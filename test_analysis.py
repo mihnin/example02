@@ -8,8 +8,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import datetime, date
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Импорт тестируемых функций
 from analysis import (
@@ -19,7 +18,7 @@ from analysis import (
     detect_anomalies,
     calculate_correlation_matrix,
     generate_insights,
-    _calculate_growth_rate
+    _calculate_growth_rate,
 )
 
 
@@ -29,11 +28,11 @@ class TestAnalysisFunctions:
     @pytest.fixture
     def sample_data(self):
         """Фикстура для создания тестовых данных."""
-        dates = pd.date_range(start='2020-01-01', periods=10, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=10, freq="D")
         data = {
-            'Продукт_1': [100, 120, 110, 130, 140, 135, 150, 160, 155, 170],
-            'Продукт_2': [80, 90, 85, 95, 100, 105, 110, 115, 120, 125],
-            'Продукт_3': [60, 65, 70, 75, 80, 85, 90, 95, 100, 105]
+            "Продукт_1": [100, 120, 110, 130, 140, 135, 150, 160, 155, 170],
+            "Продукт_2": [80, 90, 85, 95, 100, 105, 110, 115, 120, 125],
+            "Продукт_3": [60, 65, 70, 75, 80, 85, 90, 95, 100, 105],
         }
         df = pd.DataFrame(data, index=dates)
         return df
@@ -46,11 +45,11 @@ class TestAnalysisFunctions:
     @pytest.fixture
     def data_with_missing(self):
         """Фикстура для данных с пропусками."""
-        dates = pd.date_range(start='2020-01-01', periods=5, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=5, freq="D")
         data = {
-            'Продукт_1': [100, np.nan, 110, 130, 140],
-            'Продукт_2': [80, 90, np.nan, 95, 100],
-            'Продукт_3': [60, 65, 70, np.nan, 80]
+            "Продукт_1": [100, np.nan, 110, 130, 140],
+            "Продукт_2": [80, 90, np.nan, 95, 100],
+            "Продукт_3": [60, 65, 70, np.nan, 80],
         }
         df = pd.DataFrame(data, index=dates)
         return df
@@ -58,8 +57,8 @@ class TestAnalysisFunctions:
     @pytest.fixture
     def single_column_data(self):
         """Фикстура для данных с одним столбцом."""
-        dates = pd.date_range(start='2020-01-01', periods=5, freq='D')
-        data = {'Продукт_1': [100, 120, 110, 130, 140]}
+        dates = pd.date_range(start="2020-01-01", periods=5, freq="D")
+        data = {"Продукт_1": [100, 120, 110, 130, 140]}
         df = pd.DataFrame(data, index=dates)
         return df
 
@@ -68,24 +67,24 @@ class TestAnalysisFunctions:
         result = calculate_basic_statistics(sample_data)
 
         assert isinstance(result, dict)
-        assert 'Продукт_1' in result
-        assert 'Продукт_2' in result
-        assert 'Продукт_3' in result
+        assert "Продукт_1" in result
+        assert "Продукт_2" in result
+        assert "Продукт_3" in result
 
         # Проверяем структуру результата для одного продукта
-        product_stats = result['Продукт_1']
-        expected_keys = ['mean', 'median', 'std', 'min', 'max', 'sum', 'count']
+        product_stats = result["Продукт_1"]
+        expected_keys = ["mean", "median", "std", "min", "max", "sum", "count"]
         for key in expected_keys:
             assert key in product_stats
             assert isinstance(product_stats[key], (int, float))
 
         # Проверяем корректность расчетов
         expected_mean = sum([100, 120, 110, 130, 140, 135, 150, 160, 155, 170]) / 10
-        assert abs(product_stats['mean'] - expected_mean) < 0.1
-        assert product_stats['min'] == 100.0
-        assert product_stats['max'] == 170.0
-        assert product_stats['sum'] == 1370.0  # Исправлена сумма
-        assert product_stats['count'] == 10
+        assert abs(product_stats["mean"] - expected_mean) < 0.1
+        assert product_stats["min"] == 100.0
+        assert product_stats["max"] == 170.0
+        assert product_stats["sum"] == 1370.0  # Исправлена сумма
+        assert product_stats["count"] == 10
 
     def test_calculate_basic_statistics_empty_data(self, empty_data):
         """Тест расчета базовой статистики для пустых данных."""
@@ -97,19 +96,25 @@ class TestAnalysisFunctions:
         result = calculate_basic_statistics(data_with_missing)
 
         assert isinstance(result, dict)
-        assert 'Продукт_1' in result
+        assert "Продукт_1" in result
 
         # Проверяем, что функция обрабатывает пропуски
-        product_stats = result['Продукт_1']
-        assert product_stats['count'] == 4  # 5 значений - 1 пропуск
+        product_stats = result["Продукт_1"]
+        assert product_stats["count"] == 4  # 5 значений - 1 пропуск
 
     def test_calculate_kpi_metrics_normal_data(self, sample_data):
         """Тест расчета KPI метрик для нормальных данных."""
         result = calculate_kpi_metrics(sample_data)
 
         assert isinstance(result, dict)
-        required_keys = ['total_sessions', 'avg_daily_sessions', 'max_daily_sessions',
-                        'min_daily_sessions', 'days_count', 'growth_rate']
+        required_keys = [
+            "total_sessions",
+            "avg_daily_sessions",
+            "max_daily_sessions",
+            "min_daily_sessions",
+            "days_count",
+            "growth_rate",
+        ]
 
         for key in required_keys:
             assert key in result
@@ -117,18 +122,18 @@ class TestAnalysisFunctions:
 
         # Проверяем корректность расчетов
         expected_total = sample_data.sum(axis=1).sum()
-        assert result['total_sessions'] == expected_total
-        assert result['days_count'] == 10
-        assert result['avg_daily_sessions'] == expected_total / 10
+        assert result["total_sessions"] == expected_total
+        assert result["days_count"] == 10
+        assert result["avg_daily_sessions"] == expected_total / 10
 
     def test_calculate_kpi_metrics_empty_data(self, empty_data):
         """Тест расчета KPI метрик для пустых данных."""
         result = calculate_kpi_metrics(empty_data)
 
         expected_result = {
-            'total_sessions': 0,
-            'avg_daily_sessions': 0.0,
-            'max_daily_sessions': 0
+            "total_sessions": 0,
+            "avg_daily_sessions": 0.0,
+            "max_daily_sessions": 0,
         }
 
         for key, value in expected_result.items():
@@ -139,8 +144,8 @@ class TestAnalysisFunctions:
         result = calculate_kpi_metrics(single_column_data)
 
         assert isinstance(result, dict)
-        assert result['total_sessions'] == 600  # сумма всех значений
-        assert result['days_count'] == 5
+        assert result["total_sessions"] == 600  # сумма всех значений
+        assert result["days_count"] == 5
 
     def test_calculate_moving_average_normal_data(self, sample_data):
         """Тест расчета скользящего среднего для нормальных данных."""
@@ -152,21 +157,21 @@ class TestAnalysisFunctions:
 
         # Проверяем, что добавились колонки со скользящим средним
         for col in sample_data.columns:
-            ma_col = f'{col}_MA{window}'
+            ma_col = f"{col}_MA{window}"
             assert ma_col in result.columns
 
         # Проверяем, что первые значения NaN (недостаточно данных для окна)
-        assert pd.isna(result[f'Продукт_1_MA{window}'].iloc[0])
-        assert pd.isna(result[f'Продукт_1_MA{window}'].iloc[1])
+        assert pd.isna(result[f"Продукт_1_MA{window}"].iloc[0])
+        assert pd.isna(result[f"Продукт_1_MA{window}"].iloc[1])
 
     def test_calculate_moving_average_specific_column(self, sample_data):
         """Тест расчета скользящего среднего для конкретного столбца."""
         window = 3
-        column = 'Продукт_1'
+        column = "Продукт_1"
         result = calculate_moving_average(sample_data, window=window, column=column)
 
         assert isinstance(result, pd.DataFrame)
-        ma_col = f'{column}_MA{window}'
+        ma_col = f"{column}_MA{window}"
         assert ma_col in result.columns
 
         # Проверяем корректность расчета (третье значение должно быть средним первых трех)
@@ -180,7 +185,7 @@ class TestAnalysisFunctions:
 
     def test_detect_anomalies_zscore_method(self, sample_data):
         """Тест обнаружения аномалий методом z-score."""
-        result = detect_anomalies(sample_data, threshold=2.0, method='zscore')
+        result = detect_anomalies(sample_data, threshold=2.0, method="zscore")
 
         assert isinstance(result, dict)
 
@@ -191,7 +196,7 @@ class TestAnalysisFunctions:
 
     def test_detect_anomalies_iqr_method(self, sample_data):
         """Тест обнаружения аномалий методом IQR."""
-        result = detect_anomalies(sample_data, threshold=1.5, method='iqr')
+        result = detect_anomalies(sample_data, threshold=1.5, method="iqr")
 
         assert isinstance(result, dict)
 
@@ -202,12 +207,14 @@ class TestAnalysisFunctions:
 
     def test_detect_anomalies_invalid_method(self, sample_data):
         """Тест обнаружения аномалий с неверным методом."""
-        result = detect_anomalies(sample_data, method='invalid_method')
+        result = detect_anomalies(sample_data, method="invalid_method")
 
         # Должен вернуть словарь с пустыми списками для всех столбцов
         assert isinstance(result, dict)
         # Проверяем, что результат содержит записи для числовых столбцов
-        numeric_columns = sample_data.select_dtypes(include=['int64', 'float64']).columns
+        numeric_columns = sample_data.select_dtypes(
+            include=["int64", "float64"]
+        ).columns
         for col in numeric_columns:
             if col in result:
                 assert result[col] == []
@@ -259,7 +266,7 @@ class TestAnalysisFunctions:
         result = _calculate_growth_rate(series)
         assert result == 0.0
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_generate_insights_normal_data(self, mock_st_error, sample_data):
         """Тест генерации инсайтов для нормальных данных."""
         statistics = calculate_basic_statistics(sample_data)
@@ -269,10 +276,12 @@ class TestAnalysisFunctions:
         assert len(result) > 0
 
         # Проверяем, что инсайты содержат полезную информацию
-        insights_text = ' '.join(result)
-        assert any(word in insights_text for word in ['рост', 'продаж', 'лидер', 'продукт'])
+        insights_text = " ".join(result)
+        assert any(
+            word in insights_text for word in ["рост", "продаж", "лидер", "продукт"]
+        )
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_generate_insights_empty_data(self, mock_st_error, empty_data):
         """Тест генерации инсайтов для пустых данных."""
         result = generate_insights(empty_data, {})
@@ -281,14 +290,14 @@ class TestAnalysisFunctions:
         assert len(result) == 1
         assert "Недостаточно данных" in result[0]
 
-    @patch('streamlit.error')
+    @patch("streamlit.error")
     def test_generate_insights_with_high_volatility(self, mock_st_error):
         """Тест генерации инсайтов для данных с высокой волатильностью."""
         # Создаем данные с высокой волатильностью
-        dates = pd.date_range(start='2020-01-01', periods=5, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=5, freq="D")
         data = {
-            'Продукт_1': [10, 100, 20, 200, 30],  # Высокая волатильность
-            'Продукт_2': [50, 55, 52, 58, 54]     # Низкая волатильность
+            "Продукт_1": [10, 100, 20, 200, 30],  # Высокая волатильность
+            "Продукт_2": [50, 55, 52, 58, 54],  # Низкая волатильность
         }
         df = pd.DataFrame(data, index=dates)
 
@@ -296,12 +305,12 @@ class TestAnalysisFunctions:
         result = generate_insights(df, statistics)
 
         assert isinstance(result, list)
-        insights_text = ' '.join(result)
-        assert 'волатильность' in insights_text
+        insights_text = " ".join(result)
+        assert "волатильность" in insights_text
 
     def test_functions_with_streamlit_mocking(self, sample_data):
         """Тест функций с мокингом Streamlit."""
-        with patch('streamlit.error') as mock_error:
+        with patch("streamlit.error") as mock_error:
             # Тестируем, что функции не вызывают ошибки при нормальных данных
             calculate_basic_statistics(sample_data)
             calculate_kpi_metrics(sample_data)
@@ -316,35 +325,32 @@ class TestDataValidation:
 
     def test_functions_handle_non_numeric_columns(self):
         """Тест обработки нечисловых столбцов."""
-        dates = pd.date_range(start='2020-01-01', periods=3, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=3, freq="D")
         data = {
-            'Продукт_1': [100, 120, 110],
-            'Текст': ['a', 'b', 'c'],  # Нечисловой столбец
-            'Продукт_2': [80, 90, 85]
+            "Продукт_1": [100, 120, 110],
+            "Текст": ["a", "b", "c"],  # Нечисловой столбец
+            "Продукт_2": [80, 90, 85],
         }
         df = pd.DataFrame(data, index=dates)
 
         # Функции должны игнорировать нечисловые столбцы
         stats = calculate_basic_statistics(df)
-        assert 'Текст' not in stats
-        assert 'Продукт_1' in stats
-        assert 'Продукт_2' in stats
+        assert "Текст" not in stats
+        assert "Продукт_1" in stats
+        assert "Продукт_2" in stats
 
     def test_functions_handle_negative_values(self):
         """Тест обработки отрицательных значений."""
-        dates = pd.date_range(start='2020-01-01', periods=3, freq='D')
-        data = {
-            'Продукт_1': [-10, 20, -5],
-            'Продукт_2': [10, -20, 15]
-        }
+        dates = pd.date_range(start="2020-01-01", periods=3, freq="D")
+        data = {"Продукт_1": [-10, 20, -5], "Продукт_2": [10, -20, 15]}
         df = pd.DataFrame(data, index=dates)
 
         # Функции должны корректно обрабатывать отрицательные значения
         stats = calculate_basic_statistics(df)
-        assert stats['Продукт_1']['min'] == -10.0
+        assert stats["Продукт_1"]["min"] == -10.0
 
         kpi = calculate_kpi_metrics(df)
-        assert isinstance(kpi['total_sessions'], (int, float))
+        assert isinstance(kpi["total_sessions"], (int, float))
 
 
 class TestEdgeCases:
@@ -353,15 +359,16 @@ class TestEdgeCases:
     def test_large_dataset_performance(self):
         """Тест производительности на больших данных."""
         # Создаем большой dataset
-        dates = pd.date_range(start='2020-01-01', periods=1000, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=1000, freq="D")
         data = {
-            f'Продукт_{i}': np.random.randint(50, 200, 1000)
+            f"Продукт_{i}": np.random.randint(50, 200, 1000)
             for i in range(1, 11)  # 10 продуктов
         }
         df = pd.DataFrame(data, index=dates)
 
         # Проверяем, что функции работают без ошибок
         import time
+
         start_time = time.time()
 
         calculate_basic_statistics(df)
@@ -379,31 +386,31 @@ class TestEdgeCases:
         from analysis import calculate_seasonal_decomposition
 
         # Данные с недостаточным количеством периодов
-        dates = pd.date_range(start='2020-01-01', periods=5, freq='D')
-        data = {'Продукт_1': [100, 120, 110, 130, 140]}
+        dates = pd.date_range(start="2020-01-01", periods=5, freq="D")
+        data = {"Продукт_1": [100, 120, 110, 130, 140]}
         df = pd.DataFrame(data, index=dates)
 
-        result = calculate_seasonal_decomposition(df, 'Продукт_1', period=12)
+        result = calculate_seasonal_decomposition(df, "Продукт_1", period=12)
 
         # Должен вернуть None из-за недостатка данных
         assert result is None
 
     def test_functions_with_extreme_values(self):
         """Тест функций с экстремальными значениями."""
-        dates = pd.date_range(start='2020-01-01', periods=3, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=3, freq="D")
         data = {
-            'Продукт_1': [1e10, 1e-10, 1e5],  # Очень большие и маленькие числа
-            'Продукт_2': [0, 0, 0]            # Нулевые значения
+            "Продукт_1": [1e10, 1e-10, 1e5],  # Очень большие и маленькие числа
+            "Продукт_2": [0, 0, 0],  # Нулевые значения
         }
         df = pd.DataFrame(data, index=dates)
 
         # Функции должны корректно обрабатывать экстремальные значения
         stats = calculate_basic_statistics(df)
-        assert isinstance(stats['Продукт_1']['mean'], float)
-        assert stats['Продукт_2']['sum'] == 0.0
+        assert isinstance(stats["Продукт_1"]["mean"], float)
+        assert stats["Продукт_2"]["sum"] == 0.0
 
         kpi = calculate_kpi_metrics(df)
-        assert isinstance(kpi['total_sessions'], (int, float))
+        assert isinstance(kpi["total_sessions"], (int, float))
 
 
 if __name__ == "__main__":

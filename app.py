@@ -7,8 +7,8 @@
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date, timedelta
-from typing import Dict, List, Optional
+from datetime import datetime
+from typing import Dict, Optional
 
 # Импорт модулей приложения
 from data_loader import (
@@ -17,16 +17,15 @@ from data_loader import (
     get_date_range,
     validate_data,
     prepare_data_summary,
-    validate_file_format
+    validate_file_format,
 )
 from help_page import display_help_page, show_help_in_sidebar
 from analysis import (
     calculate_basic_statistics,
     calculate_kpi_metrics,
-    calculate_moving_average,
     detect_anomalies,
     calculate_correlation_matrix,
-    generate_insights
+    generate_insights,
 )
 from plotting import (
     create_sales_timeline,
@@ -35,7 +34,6 @@ from plotting import (
     create_correlation_matrix,
     create_seasonal_plot,
     create_growth_chart,
-    create_distribution_plot
 )
 
 
@@ -45,7 +43,7 @@ def setup_page_config() -> None:
         page_title="Анализатор Трафика Веб-сайта",
         page_icon="📊",
         layout="wide",
-        initial_sidebar_state="expanded"
+        initial_sidebar_state="expanded",
     )
 
 
@@ -59,9 +57,7 @@ def setup_navigation() -> str:
     st.sidebar.title("🔧 Навигация")
 
     page = st.sidebar.radio(
-        "Выберите страницу:",
-        ["📊 Анализ данных", "📚 Справка"],
-        index=0
+        "Выберите страницу:", ["📊 Анализ данных", "📚 Справка"], index=0
     )
 
     st.sidebar.markdown("---")
@@ -91,16 +87,14 @@ def handle_file_upload() -> Optional[pd.DataFrame]:
 
     # Выбор источника данных
     data_source = st.sidebar.radio(
-        "Источник данных:",
-        ["📊 Демо данные", "⬆️ Загрузить файл"],
-        index=0
+        "Источник данных:", ["📊 Демо данные", "⬆️ Загрузить файл"], index=0
     )
 
     if data_source == "⬆️ Загрузить файл":
         uploaded_file = st.sidebar.file_uploader(
             "Выберите файл с данными",
-            type=['xlsx', 'xls', 'csv'],
-            help="Поддерживаются форматы: Excel (.xlsx, .xls) и CSV (.csv)"
+            type=["xlsx", "xls", "csv"],
+            help="Поддерживаются форматы: Excel (.xlsx, .xls) и CSV (.csv)",
         )
 
         if uploaded_file is not None:
@@ -114,17 +108,17 @@ def handle_file_upload() -> Optional[pd.DataFrame]:
                         validation_result = validate_file_format(df, uploaded_file.name)
 
                         # Отображаем результаты валидации
-                        if validation_result['errors']:
+                        if validation_result["errors"]:
                             st.sidebar.error("❌ Ошибки в файле:")
-                            for error in validation_result['errors']:
+                            for error in validation_result["errors"]:
                                 st.sidebar.error(f"• {error}")
 
-                        if validation_result['warnings']:
+                        if validation_result["warnings"]:
                             st.sidebar.warning("⚠️ Предупреждения:")
-                            for warning in validation_result['warnings']:
+                            for warning in validation_result["warnings"]:
                                 st.sidebar.warning(f"• {warning}")
 
-                        if validation_result['is_valid']:
+                        if validation_result["is_valid"]:
                             st.sidebar.success("✅ Файл успешно загружен!")
                             return df
                         else:
@@ -171,17 +165,11 @@ def create_sidebar_controls(df: pd.DataFrame) -> Dict:
     # Элементы управления датами
     st.sidebar.subheader("📅 Диапазон дат")
     start_date = st.sidebar.date_input(
-        "Начальная дата",
-        value=min_date,
-        min_value=min_date,
-        max_value=max_date
+        "Начальная дата", value=min_date, min_value=min_date, max_value=max_date
     )
 
     end_date = st.sidebar.date_input(
-        "Конечная дата",
-        value=max_date,
-        min_value=min_date,
-        max_value=max_date
+        "Конечная дата", value=max_date, min_value=min_date, max_value=max_date
     )
 
     # Проверка корректности диапазона
@@ -195,25 +183,19 @@ def create_sidebar_controls(df: pd.DataFrame) -> Dict:
     smoothing = st.sidebar.checkbox(
         "Применить сглаживание (скользящее среднее)",
         value=False,
-        help="Добавляет линию скользящего среднего на основной график"
+        help="Добавляет линию скользящего среднего на основной график",
     )
 
     smoothing_window = 7
     if smoothing:
         smoothing_window = st.sidebar.slider(
-            "Размер окна сглаживания (дни)",
-            min_value=3,
-            max_value=30,
-            value=7,
-            step=1
+            "Размер окна сглаживания (дни)", min_value=3, max_value=30, value=7, step=1
         )
 
     # Дополнительные опции
     st.sidebar.subheader("🔧 Дополнительные настройки")
     show_anomalies = st.sidebar.checkbox(
-        "Обнаружение аномалий",
-        value=False,
-        help="Выделяет необычные значения в данных"
+        "Обнаружение аномалий", value=False, help="Выделяет необычные значения в данных"
     )
 
     chart_type = st.sidebar.selectbox(
@@ -223,17 +205,17 @@ def create_sidebar_controls(df: pd.DataFrame) -> Dict:
         format_func=lambda x: {
             "bar": "Столбчатая диаграмма",
             "pie": "Круговая диаграмма",
-            "donut": "Кольцевая диаграмма"
-        }[x]
+            "donut": "Кольцевая диаграмма",
+        }[x],
     )
 
     return {
-        'start_date': start_date,
-        'end_date': end_date,
-        'smoothing': smoothing,
-        'smoothing_window': smoothing_window,
-        'show_anomalies': show_anomalies,
-        'chart_type': chart_type
+        "start_date": start_date,
+        "end_date": end_date,
+        "smoothing": smoothing,
+        "smoothing_window": smoothing_window,
+        "show_anomalies": show_anomalies,
+        "chart_type": chart_type,
     }
 
 
@@ -256,32 +238,32 @@ def display_kpi_metrics(metrics: Dict) -> None:
         st.metric(
             label="Общее количество сессий",
             value=f"{metrics.get('total_sessions', 0):,}",
-            delta=None
+            delta=None,
         )
 
     with col2:
-        avg_sessions = metrics.get('avg_daily_sessions', 0)
+        avg_sessions = metrics.get("avg_daily_sessions", 0)
         st.metric(
             label="Среднее количество сессий в день",
             value=f"{avg_sessions:,.1f}",
-            delta=None
+            delta=None,
         )
 
     with col3:
         st.metric(
             label="Максимальное количество сессий",
             value=f"{metrics.get('max_daily_sessions', 0):,}",
-            delta=None
+            delta=None,
         )
 
     with col4:
-        growth_rate = metrics.get('growth_rate', 0)
+        growth_rate = metrics.get("growth_rate", 0)
         delta_color = "normal" if growth_rate >= 0 else "inverse"
         st.metric(
             label="Общий темп роста",
             value=f"{growth_rate:+.1f}%",
             delta=f"{growth_rate:+.1f}%",
-            delta_color=delta_color
+            delta_color=delta_color,
         )
 
 
@@ -303,13 +285,13 @@ def display_main_chart(df: pd.DataFrame, params: Dict) -> None:
     fig = create_sales_timeline(
         df,
         title="Динамика продаж по времени",
-        smoothing=params['smoothing'],
-        window=params['smoothing_window']
+        smoothing=params["smoothing"],
+        window=params["smoothing_window"],
     )
 
     # Добавляем аномалии если требуется
-    if params['show_anomalies']:
-        anomalies = detect_anomalies(df, threshold=2.0, method='zscore')
+    if params["show_anomalies"]:
+        anomalies = detect_anomalies(df, threshold=2.0, method="zscore")
         if anomalies:
             st.info("🔍 Обнаружены аномалии в данных (отмечены красными точками)")
 
@@ -334,7 +316,7 @@ def display_product_analysis(df: pd.DataFrame, params: Dict) -> None:
 
     with col1:
         # График сравнения продуктов
-        comparison_fig = create_product_comparison(df, params['chart_type'])
+        comparison_fig = create_product_comparison(df, params["chart_type"])
         st.plotly_chart(comparison_fig, use_container_width=True)
 
     with col2:
@@ -394,24 +376,20 @@ def display_data_table(df: pd.DataFrame) -> None:
 
     # Добавляем общий столбец
     display_df = df.copy()
-    display_df['Общие продажи'] = df.sum(axis=1)
+    display_df["Общие продажи"] = df.sum(axis=1)
 
     # Форматируем индекс для лучшего отображения
-    display_df.index = display_df.index.strftime('%Y-%m-%d')
+    display_df.index = display_df.index.strftime("%Y-%m-%d")
 
-    st.dataframe(
-        display_df,
-        use_container_width=True,
-        height=400
-    )
+    st.dataframe(display_df, use_container_width=True, height=400)
 
     # Кнопка для скачивания данных
-    csv = display_df.to_csv(encoding='utf-8-sig')
+    csv = display_df.to_csv(encoding="utf-8-sig")
     st.download_button(
         label="📥 Скачать данные (CSV)",
         data=csv,
         file_name=f"sales_data_{datetime.now().strftime('%Y%m%d')}.csv",
-        mime="text/csv"
+        mime="text/csv",
     )
 
 
@@ -468,7 +446,7 @@ def main() -> None:
         params = create_sidebar_controls(df)
 
         # Фильтрация данных по выбранному диапазону
-        filtered_df = filter_data_by_date(df, params['start_date'], params['end_date'])
+        filtered_df = filter_data_by_date(df, params["start_date"], params["end_date"])
 
         if filtered_df.empty:
             st.warning("⚠️ Нет данных в выбранном диапазоне дат")
@@ -513,8 +491,12 @@ def main() -> None:
 
         data_summary = prepare_data_summary(filtered_df)
         if data_summary:
-            st.sidebar.write(f"**Количество записей:** {data_summary.get('total_rows', 0)}")
-            st.sidebar.write(f"**Период:** {data_summary.get('date_range', 'Неизвестно')}")
+            st.sidebar.write(
+                f"**Количество записей:** {data_summary.get('total_rows', 0)}"
+            )
+            st.sidebar.write(
+                f"**Период:** {data_summary.get('date_range', 'Неизвестно')}"
+            )
             st.sidebar.write(f"**Продукты:** {len(data_summary.get('columns', []))}")
 
         # Добавляем краткую справку в боковую панель

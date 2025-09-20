@@ -13,7 +13,9 @@ import os
 
 
 @st.cache_data
-def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.DataFrame:
+def load_sales_data(
+    file_path: Optional[str] = None, uploaded_file=None
+) -> pd.DataFrame:
     """
     Загружает данные о продажах из Excel файла с кэшированием.
 
@@ -32,9 +34,11 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
         # Определяем источник данных
         if uploaded_file is not None:
             # Загружаем из загруженного файла
-            if uploaded_file.name.endswith('.xlsx') or uploaded_file.name.endswith('.xls'):
+            if uploaded_file.name.endswith(".xlsx") or uploaded_file.name.endswith(
+                ".xls"
+            ):
                 df = pd.read_excel(uploaded_file)
-            elif uploaded_file.name.endswith('.csv'):
+            elif uploaded_file.name.endswith(".csv"):
                 df = pd.read_csv(uploaded_file)
             else:
                 raise ValueError("Поддерживаются только файлы .xlsx, .xls и .csv")
@@ -48,7 +52,7 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
             # Сначала ищем в корне проекта (для GitHub deployment)
             default_paths = [
                 "sample_sales_data.xlsx",  # корень проекта
-                "docs/sample_sales_data.xlsx"  # локальная папка docs
+                "docs/sample_sales_data.xlsx",  # локальная папка docs
             ]
 
             df = None
@@ -58,7 +62,9 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
                     break
 
             if df is None:
-                raise FileNotFoundError("Файл данных не найден. Пожалуйста, загрузите файл.")
+                raise FileNotFoundError(
+                    "Файл данных не найден. Пожалуйста, загрузите файл."
+                )
 
         # Определяем столбец с датами и переименовываем его
         date_column = None
@@ -67,8 +73,12 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
         # Ищем столбец с датами
         for col in df.columns:
             col_lower = str(col).lower()
-            if ('дата' in col_lower or 'date' in col_lower or 'время' in col_lower or
-                col == 'Unnamed: 0'):
+            if (
+                "дата" in col_lower
+                or "date" in col_lower
+                or "время" in col_lower
+                or col == "Unnamed: 0"
+            ):
                 date_column = col
                 break
 
@@ -78,24 +88,24 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
                 # Проверяем, можно ли преобразовать первый столбец в даты
                 pd.to_datetime(df[first_col].head())
                 date_column = first_col
-            except:
+            except (ValueError, TypeError):
                 raise ValueError("Первый столбец не содержит распознаваемые даты")
 
         if date_column is None:
             raise ValueError("Столбец с датами не найден")
 
         # Переименовываем столбец с датами в 'Дата'
-        if date_column != 'Дата':
-            df = df.rename(columns={date_column: 'Дата'})
+        if date_column != "Дата":
+            df = df.rename(columns={date_column: "Дата"})
 
         # Преобразуем столбец с датами
-        df['Дата'] = pd.to_datetime(df['Дата'])
+        df["Дата"] = pd.to_datetime(df["Дата"])
 
         # Устанавливаем дату как индекс
-        df = df.set_index('Дата')
+        df = df.set_index("Дата")
 
         # Проверяем наличие числовых столбцов
-        numeric_columns = df.select_dtypes(include=['int64', 'float64']).columns
+        numeric_columns = df.select_dtypes(include=["int64", "float64"]).columns
         if len(numeric_columns) == 0:
             raise ValueError("Не найдены числовые столбцы с данными")
 
@@ -107,9 +117,7 @@ def load_sales_data(file_path: Optional[str] = None, uploaded_file=None) -> pd.D
 
 
 def filter_data_by_date(
-    df: pd.DataFrame,
-    start_date: Union[date, datetime],
-    end_date: Union[date, datetime]
+    df: pd.DataFrame, start_date: Union[date, datetime], end_date: Union[date, datetime]
 ) -> pd.DataFrame:
     """
     Фильтрует DataFrame по диапазону дат.
@@ -182,7 +190,7 @@ def validate_data(df: pd.DataFrame) -> bool:
         return False
 
     # Проверяем наличие числовых данных
-    numeric_columns = df.select_dtypes(include=['int64', 'float64']).columns
+    numeric_columns = df.select_dtypes(include=["int64", "float64"]).columns
     if len(numeric_columns) == 0:
         return False
 
@@ -209,11 +217,11 @@ def prepare_data_summary(df: pd.DataFrame) -> dict:
             return {}
 
         summary = {
-            'total_rows': len(df),
-            'date_range': f"{df.index.min().strftime('%Y-%m-%d')} - {df.index.max().strftime('%Y-%m-%d')}",
-            'columns': list(df.columns),
-            'total_missing_values': df.isnull().sum().sum(),
-            'memory_usage': df.memory_usage(deep=True).sum() / 1024 / 1024  # в MB
+            "total_rows": len(df),
+            "date_range": f"{df.index.min().strftime('%Y-%m-%d')} - {df.index.max().strftime('%Y-%m-%d')}",
+            "columns": list(df.columns),
+            "total_missing_values": df.isnull().sum().sum(),
+            "memory_usage": df.memory_usage(deep=True).sum() / 1024 / 1024,  # в MB
         }
 
         return summary
@@ -223,7 +231,9 @@ def prepare_data_summary(df: pd.DataFrame) -> dict:
         return {}
 
 
-def validate_file_format(df: pd.DataFrame, uploaded_filename: Optional[str] = None) -> Dict[str, Union[bool, List[str]]]:
+def validate_file_format(
+    df: pd.DataFrame, uploaded_filename: Optional[str] = None
+) -> Dict[str, Union[bool, List[str]]]:
     """
     Валидирует формат загруженного файла.
 
@@ -235,16 +245,16 @@ def validate_file_format(df: pd.DataFrame, uploaded_filename: Optional[str] = No
         Dict[str, Union[bool, List[str]]]: Результат валидации с деталями
     """
     validation_result = {
-        'is_valid': True,
-        'errors': [],
-        'warnings': [],
-        'suggestions': []
+        "is_valid": True,
+        "errors": [],
+        "warnings": [],
+        "suggestions": [],
     }
 
     try:
         if df.empty:
-            validation_result['is_valid'] = False
-            validation_result['errors'].append("Файл пустой или не содержит данных")
+            validation_result["is_valid"] = False
+            validation_result["errors"].append("Файл пустой или не содержит данных")
             return validation_result
 
         # Проверяем наличие столбца с датами
@@ -253,8 +263,13 @@ def validate_file_format(df: pd.DataFrame, uploaded_filename: Optional[str] = No
 
         for col in df.columns:
             col_lower = str(col).lower()
-            if ('дата' in col_lower or 'date' in col_lower or 'время' in col_lower or
-                col == 'Unnamed: 0' or col == first_col):
+            if (
+                "дата" in col_lower
+                or "date" in col_lower
+                or "время" in col_lower
+                or col == "Unnamed: 0"
+                or col == first_col
+            ):
                 date_columns.append(col)
 
         # Всегда считаем первый столбец потенциальным столбцом с датами
@@ -263,26 +278,36 @@ def validate_file_format(df: pd.DataFrame, uploaded_filename: Optional[str] = No
             try:
                 pd.to_datetime(df[first_col].head())
                 date_columns.append(first_col)
-            except:
+            except (ValueError, TypeError):
                 pass
 
         if not date_columns:
-            validation_result['errors'].append("Не найден столбец с датами. Ожидается столбец 'Дата', 'Date' или первый столбец с датами")
-            validation_result['is_valid'] = False
+            validation_result["errors"].append(
+                "Не найден столбец с датами. Ожидается столбец 'Дата', 'Date' или первый столбец с датами"
+            )
+            validation_result["is_valid"] = False
         else:
             # Проверяем, что первый столбец можно преобразовать в даты
             try:
                 pd.to_datetime(df[first_col])
-            except:
-                validation_result['warnings'].append(f"Первый столбец '{first_col}' может содержать некорректные даты")
+            except (ValueError, TypeError):
+                validation_result["warnings"].append(
+                    f"Первый столбец '{first_col}' может содержать некорректные даты"
+                )
 
         # Проверяем наличие числовых столбцов
-        numeric_columns = df.select_dtypes(include=['int64', 'float64', 'int32', 'float32']).columns
+        numeric_columns = df.select_dtypes(
+            include=["int64", "float64", "int32", "float32"]
+        ).columns
         if len(numeric_columns) == 0:
-            validation_result['errors'].append("Не найдены столбцы с числовыми данными о продажах")
-            validation_result['is_valid'] = False
+            validation_result["errors"].append(
+                "Не найдены столбцы с числовыми данными о продажах"
+            )
+            validation_result["is_valid"] = False
         elif len(numeric_columns) < 2:
-            validation_result['warnings'].append("Найден только один столбец с числовыми данными. Рекомендуется иметь несколько продуктов для сравнения")
+            validation_result["warnings"].append(
+                "Найден только один столбец с числовыми данными. Рекомендуется иметь несколько продуктов для сравнения"
+            )
 
         # Проверяем формат данных в первом столбце (даты)
         if len(df.columns) > 0:
@@ -290,33 +315,41 @@ def validate_file_format(df: pd.DataFrame, uploaded_filename: Optional[str] = No
             try:
                 # Пытаемся преобразовать в даты
                 pd.to_datetime(df[first_col].head())
-            except:
+            except (ValueError, TypeError):
                 if first_col not in date_columns:
-                    validation_result['warnings'].append(f"Первый столбец '{first_col}' не распознан как дата")
+                    validation_result["warnings"].append(
+                        f"Первый столбец '{first_col}' не распознан как дата"
+                    )
 
         # Проверяем на отрицательные значения
         for col in numeric_columns:
             if (df[col] < 0).any():
-                validation_result['warnings'].append(f"Столбец '{col}' содержит отрицательные значения")
+                validation_result["warnings"].append(
+                    f"Столбец '{col}' содержит отрицательные значения"
+                )
 
         # Проверяем на пропущенные значения
         missing_data = df.isnull().sum()
         if missing_data.any():
             missing_cols = missing_data[missing_data > 0].index.tolist()
-            validation_result['warnings'].append(f"Пропущенные значения в столбцах: {', '.join(missing_cols)}")
+            validation_result["warnings"].append(
+                f"Пропущенные значения в столбцах: {', '.join(missing_cols)}"
+            )
 
         # Добавляем рекомендации
-        validation_result['suggestions'].extend([
-            "Убедитесь, что первый столбец содержит даты в формате YYYY-MM-DD",
-            "Числовые столбцы должны содержать данные о продажах или количестве сессий",
-            "Рекомендуется использовать понятные названия столбцов (например: 'Продукт_1', 'Продукт_2')"
-        ])
+        validation_result["suggestions"].extend(
+            [
+                "Убедитесь, что первый столбец содержит даты в формате YYYY-MM-DD",
+                "Числовые столбцы должны содержать данные о продажах или количестве сессий",
+                "Рекомендуется использовать понятные названия столбцов (например: 'Продукт_1', 'Продукт_2')",
+            ]
+        )
 
         return validation_result
 
     except Exception as e:
-        validation_result['is_valid'] = False
-        validation_result['errors'].append(f"Ошибка при валидации файла: {str(e)}")
+        validation_result["is_valid"] = False
+        validation_result["errors"].append(f"Ошибка при валидации файла: {str(e)}")
         return validation_result
 
 
@@ -328,11 +361,11 @@ def get_file_format_requirements() -> Dict[str, str]:
         Dict[str, str]: Словарь с требованиями к формату
     """
     return {
-        'file_types': 'Excel (.xlsx, .xls) или CSV (.csv)',
-        'structure': 'Первый столбец - даты, остальные - числовые данные',
-        'date_format': 'YYYY-MM-DD или стандартные форматы Excel',
-        'encoding': 'UTF-8 (для CSV файлов)',
-        'required_columns': 'Минимум 2 столбца: даты и числовые данные',
-        'example_columns': 'Дата, Продукт_1, Продукт_2, Продукт_3',
-        'data_requirements': 'Положительные числовые значения, без пропусков в датах'
+        "file_types": "Excel (.xlsx, .xls) или CSV (.csv)",
+        "structure": "Первый столбец - даты, остальные - числовые данные",
+        "date_format": "YYYY-MM-DD или стандартные форматы Excel",
+        "encoding": "UTF-8 (для CSV файлов)",
+        "required_columns": "Минимум 2 столбца: даты и числовые данные",
+        "example_columns": "Дата, Продукт_1, Продукт_2, Продукт_3",
+        "data_requirements": "Положительные числовые значения, без пропусков в датах",
     }

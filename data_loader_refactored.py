@@ -14,11 +14,11 @@ from pathlib import Path
 
 
 # Константы для улучшения читаемости
-SUPPORTED_FILE_EXTENSIONS = {'.xlsx', '.xls', '.csv'}
-DATE_COLUMN_INDICATORS = {'дата', 'date', 'время', 'unnamed: 0'}
-DEFAULT_DATE_COLUMN_NAME = 'Дата'
+SUPPORTED_FILE_EXTENSIONS = {".xlsx", ".xls", ".csv"}
+DATE_COLUMN_INDICATORS = {"дата", "date", "время", "unnamed: 0"}
+DEFAULT_DATE_COLUMN_NAME = "Дата"
 DEFAULT_DATA_PATH = "docs/sample_sales_data.xlsx"
-NUMERIC_DTYPES = ['int64', 'float64']
+NUMERIC_DTYPES = ["int64", "float64"]
 
 
 def _determine_file_type(file_source: Union[str, object]) -> str:
@@ -34,17 +34,17 @@ def _determine_file_type(file_source: Union[str, object]) -> str:
     Raises:
         ValueError: Если формат файла не поддерживается
     """
-    if hasattr(file_source, 'name'):
+    if hasattr(file_source, "name"):
         filename = file_source.name
     else:
         filename = str(file_source)
 
     file_extension = Path(filename).suffix.lower()
 
-    if file_extension in {'.xlsx', '.xls'}:
-        return 'excel'
-    elif file_extension == '.csv':
-        return 'csv'
+    if file_extension in {".xlsx", ".xls"}:
+        return "excel"
+    elif file_extension == ".csv":
+        return "csv"
     else:
         raise ValueError(
             f"Неподдерживаемый формат файла: {file_extension}. "
@@ -53,8 +53,7 @@ def _determine_file_type(file_source: Union[str, object]) -> str:
 
 
 def _load_dataframe_from_source(
-    file_path: Optional[str] = None,
-    uploaded_file: Optional[object] = None
+    file_path: Optional[str] = None, uploaded_file: Optional[object] = None
 ) -> pd.DataFrame:
     """
     Загружает DataFrame из указанного источника данных.
@@ -93,9 +92,9 @@ def _read_uploaded_file(uploaded_file: object) -> pd.DataFrame:
     """
     file_type = _determine_file_type(uploaded_file)
 
-    if file_type == 'excel':
+    if file_type == "excel":
         return pd.read_excel(uploaded_file)
-    elif file_type == 'csv':
+    elif file_type == "csv":
         return pd.read_csv(uploaded_file)
 
 
@@ -131,9 +130,7 @@ def _read_default_file() -> pd.DataFrame:
     if os.path.exists(DEFAULT_DATA_PATH):
         return pd.read_excel(DEFAULT_DATA_PATH)
     else:
-        raise FileNotFoundError(
-            "Файл данных не найден. Пожалуйста, загрузите файл."
-        )
+        raise FileNotFoundError("Файл данных не найден. Пожалуйста, загрузите файл.")
 
 
 def _find_date_column(dataframe: pd.DataFrame) -> Optional[str]:
@@ -179,8 +176,7 @@ def _is_valid_date_column(dataframe: pd.DataFrame, column_name: str) -> bool:
 
 
 def _normalize_date_column(
-    dataframe: pd.DataFrame,
-    date_column_name: str
+    dataframe: pd.DataFrame, date_column_name: str
 ) -> pd.DataFrame:
     """
     Нормализует столбец с датами и устанавливает его как индекс.
@@ -261,8 +257,7 @@ def _process_sales_dataframe(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
 
 @st.cache_data
 def load_sales_data(
-    file_path: Optional[str] = None,
-    uploaded_file: Optional[object] = None
+    file_path: Optional[str] = None, uploaded_file: Optional[object] = None
 ) -> pd.DataFrame:
     """
     Загружает и обрабатывает данные о продажах с кэшированием.
@@ -312,7 +307,7 @@ def load_sales_data(
 def filter_data_by_date_range(
     dataframe: pd.DataFrame,
     start_date: Union[date, datetime],
-    end_date: Union[date, datetime]
+    end_date: Union[date, datetime],
 ) -> pd.DataFrame:
     """
     Фильтрует DataFrame по диапазону дат с улучшенной обработкой ошибок.
@@ -341,9 +336,8 @@ def filter_data_by_date_range(
             raise ValueError("Начальная дата не может быть позже конечной")
 
         # Фильтруем данные
-        date_mask = (
-            (dataframe.index >= normalized_start)
-            & (dataframe.index <= normalized_end)
+        date_mask = (dataframe.index >= normalized_start) & (
+            dataframe.index <= normalized_end
         )
         filtered_dataframe = dataframe[date_mask]
 
